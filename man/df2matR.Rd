@@ -9,7 +9,7 @@ df2matR(var.df, r)
 \arguments{
 \item{var.df}{dataframe of sampling variances of direct estimators.}
 
-\item{r}{number of variabel}
+\item{r}{number of variables}
 }
 \value{
 Block diagonal matrix R

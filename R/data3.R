@@ -4,7 +4,7 @@
 #' \enumerate{
 #'   \item Generate sampling error \code{e}, random effect \code{u}, and auxiliary variables \code{X1 X2}.
 #'   \cr For sampling error \code{e}, we take \eqn{\sigma_{e11}}{\sigmae11} = 0.1 , \eqn{\sigma_{e22}}{\sigmae22} = 0.2 ,  \eqn{\sigma_{e33}}{\sigmae33} = 0.3 , and \eqn{\rho_{e}}{\rhoe} = 0.5. Sampling variance-covariance is square of these sampling errors.
-#'   \cr For random effect \code{u}, we take we take \eqn{\sigma_{u11}}{\sigmau11} = 0.2 , \eqn{\sigma_{u22}}{\sigmau22} = 0.4 , \eqn{\sigma_{u33}}{\sigmau33} = 1.2 , and  \eqn{\rho_{u}}{\rhou} = 0.5.
+#'   \cr For random effect \code{u}, we take  \eqn{\sigma_{u11}}{\sigmau11} = 0.2 , \eqn{\sigma_{u22}}{\sigmau22} = 0.4 , \eqn{\sigma_{u33}}{\sigmau33} = 1.2 , and  \eqn{\rho_{u}}{\rhou} = 0.5.
 #'   \cr For auxiliary variables \code{X1 and X2}, we take \eqn{\mu_{X1}}{\muX1} = 5 , \eqn{\mu_{X2}}{\muX2} = 5 , \eqn{\sigma_{X11}}{\sigmaX11} = 1 ,  \eqn{\sigma_{X22}}{\sigmaX22} = 2 , and \eqn{\rho_{x}}{\rhox} = 0.5. . The formula of auxiliary variables is following Roberto Benavent and Domingo Morales (2015) <doi:10.1016/j.csda.2015.07.013>.
 #'   \item Calculate direct estimation \code{Y1 Y2 and Y3} , where \eqn{Y_{i}}{Yi} = \eqn{X * \beta + u_{i} + e_{i}}{X\beta+ui+ei}
 #' }

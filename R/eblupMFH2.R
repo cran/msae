@@ -3,31 +3,48 @@
 #' @param data dataframe containing the variables named in \code{formula} and \code{vardir}
 #' @param formula an object of class list of formula, describe the model to be fitted
 #' @param vardir if data is available, it is vector containing name of sampling variances of direct estimators. if not, it is data frame of sampling variances of direct estimators. The order is : \code{var1, var2, . , var(k) , cov12, . cov1k, cov23, . , cov(k-1)(k)}
-#' @param MAXITER maximum number of iterations allowed in the Fisher-scoring algoritm, Default: \code{100}
+#' @param MAXITER maximum number of iterations allowed in the Fisher-scoring algorithm, Default: \code{100}
 #' @param PRECISION convergence tolerance limit for the Fisher-scoring algorithm, Default: \code{1e-4}
 #' @return The function returns a list with the following objects:
 #' \describe{
 #'   \item{eblup}{a dataframe with the values of the EBLUP estimators}
 #'   \item{MSE}{a dataframe with the estimated mean squared errors of the EBLUPs for the small domains}
 #'   \item{randomEffect}{a dataframe with the values of the random effect estimators}
+#'   \item{Rmatrix}{a block diagonal matrix composed of sampling errors}
 #'   \item{fit}{a list containing the following objects:}
 #'   \itemize{
 #'     \item method : type of fitting method, named "REML"
 #'     \item convergence : a logical value of convergence of Fisher Scoring algorithm
 #'     \item iterations : number of iterations performed by Fisher-Scoring algorithm
-#'     \item estcoef : a dataframe with the estimated model coefficient in the first column, their standart error in the second column, the t statistics in the third column, and the p-values of the significance of each coefficient in the last column
+#'     \item estcoef : a dataframe with the estimated model coefficient in the first column, their standard error in the second column, the t statistics in the third column, and the p-values of the significance of each coefficient in the last column
 #'     \item refvar : a dataframe with the estimated random effect variance
 #'     \item rho : a dataframe with the estimated rho of random effect variance and their rho parameter test based on Model 2
 #'     \item informationFisher : a matrix of information Fisher of Fisher-Scoring algorithm
 #'   }
 #' }
 #' @examples
+#' ## Load dataset
 #' data(datasae2)
+#'
+#' # Compute EBLUP and MSE of Y1 Y2 and Y3  based on Model 2
+#' # using auxiliary variables X1 and X2 for each dependent variable
+#'
+#' ## Without parameter 'data'
 #' Fo <- list(f1=Y1~X1+X2,
-#' f2=Y2~X1+X2,
-#' f3=Y3~X1+X2)
+#'            f2=Y2~X1+X2,
+#'            f3=Y3~X1+X2)
 #' vardir <- c("v1", "v2", "v3", "v12", "v13", "v23")
-#' eblupMFH2(Fo, vardir, data=datasae2)
+#' m2 <- eblupMFH2(Fo, vardir, data=datasae2)
+#'
+#' ## Without parameter 'data'
+#' Fo <- list(f1=datasae2$Y1~datasae2$X1+datasae2$X2,
+#'            f2=datasae2$Y2~datasae2$X1+datasae2$X2,
+#'            f3=datasae2$Y3~datasae2$X1+datasae2$X2)
+#' vardir <- datasae2[,c("v1", "v2", "v3", "v12", "v13", "v23")]
+#' m2 <- eblupMFH2(Fo, vardir)
+#'
+#' m2$eblup   # see the EBLUP estimators
+#' m2$MSE   # see MSE of EBLUP estimators
 #'
 #' @export eblupMFH2
 eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
@@ -76,12 +93,12 @@ eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
   Id <- diag(r)
   d.Omega <- list()
   sigmau <- c(mean(sapply(vardir[,1:r], median)), 1 - 1e-04)
-  ki <- 0
+  kit <- 0
   diff <- rep(PRECISION + 1,2)
   convergence <- TRUE
 
-  while (any(diff > rep(PRECISION,2)) & (ki < MAXITER)) {
-    ki <- ki + 1
+  while (any(diff > rep(PRECISION,2)) & (kit < MAXITER)) {
+    kit <- kit + 1
     sigmau1=sigmau
     Omega_AR <- matrix(0, r,r)
     if(r == 1){
@@ -119,7 +136,7 @@ eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
     diff <- abs((sigmau - sigmau1)/sigmau1)
   }
   sigmau[1] <- max(sigmau[1], 0)
-  if (ki >= MAXITER && diff >= PRECISION) {
+  if (kit >= MAXITER && diff >= PRECISION) {
     convergence <- FALSE }
 
   if(r == 1){
@@ -181,8 +198,7 @@ eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
   u.cap.df <- as.data.frame(matrix(u.cap, n, r))
   names(u.cap.df) <- y.var
 
-  F.inv <- solve(iF)
-  T.test <- (sigmau[2,]) / (sqrt(F.inv[2,2]))
+  T.test <- (sigmau[2,]) / (sqrt(FI[2,2]))
   if(T.test > 0){
     p.val <- 1-pnorm(T.test)
   } else {
@@ -210,7 +226,7 @@ eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
   result$Rmatrix <- signif(R, digits = 5)
   result$fit$method <- "REML"
   result$fit$convergence <- convergence
-  result$fit$iterations <- ki
+  result$fit$iterations <- kit
   result$fit$estcoef <- coef
   result$fit$refvar <- signif(sigmau[1,], digits = 5)
   result$fit$rho <- rho.df

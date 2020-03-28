@@ -20,7 +20,7 @@ eblupMFH1(
 
 \item{samevar}{logical input, true if variances of the data are same, Default: \code{FALSE}}
 
-\item{MAXITER}{maximum number of iterations allowed in the Fisher-scoring algoritm, Default: \code{100}}
+\item{MAXITER}{maximum number of iterations allowed in the Fisher-scoring algorithm, Default: \code{100}}
 
 \item{PRECISION}{convergence tolerance limit for the Fisher-scoring algorithm, Default: \code{1e-4}}
 
@@ -32,12 +32,13 @@ The function returns a list with the following objects:
   \item{eblup}{a dataframe with the values of the EBLUP estimators}
   \item{MSE}{a dataframe with the estimated mean squared errors of the EBLUPs for the small domains}
   \item{randomEffect}{a dataframe with the values of the random effect estimators}
+  \item{Rmatrix}{a block diagonal matrix composed of sampling errors}
   \item{fit}{a list containing the following objects:}
   \itemize{
     \item method : type of fitting method, named "REML"
     \item convergence : a logical value of convergence of Fisher Scoring algorithm
     \item iterations : number of iterations performed by Fisher-Scoring algorithm
-    \item estcoef : a dataframe with the estimated model coefficient in the first column, their standart error in the second column, the t statistics in the third column, and the p-values of the significance of each coefficient in the last column
+    \item estcoef : a dataframe with the estimated model coefficient in the first column, their standard error in the second column, the t statistics in the third column, and the p-values of the significance of each coefficient in the last column
     \item refvar : a dataframe with the estimated random effect variance
     \item informationFisher : a matrix of information Fisher of Fisher-Scoring algorithm
   }
@@ -47,11 +48,27 @@ The function returns a list with the following objects:
 This function gives the EBLUP and MSE based on a multivariate Fay-Herriot model (model 1)
 }
 \examples{
+## Load dataset
 data(datasae1)
+
+# Compute EBLUP and MSE of Y1 Y2 and Y3  based on Model 1
+# using auxiliary variables X1 and X2 for each dependent variable
+
+## Using parameter 'data'
 Fo <- list(f1=Y1~X1+X2,
-f2=Y2~X1+X2,
-f3=Y3~X1+X2)
+           f2=Y2~X1+X2,
+           f3=Y3~X1+X2)
 vardir <- c("v1", "v2", "v3", "v12", "v13", "v23")
-eblupMFH1(Fo, vardir, data=datasae1)
+m1 <- eblupMFH1(Fo, vardir, data=datasae1)
+
+## Without parameter 'data'
+Fo <- list(f1=datasae1$Y1~datasae1$X1+datasae1$X2,
+           f2=datasae1$Y2~datasae1$X1+datasae1$X2,
+           f3=datasae1$Y3~datasae1$X1+datasae1$X2)
+vardir <- datasae1[,c("v1", "v2", "v3", "v12", "v13", "v23")]
+m1 <- eblupMFH1(Fo, vardir)
+
+m1$eblup   # see the EBLUP estimators
+m1$MSE   # see MSE of EBLUP estimators
 
 }

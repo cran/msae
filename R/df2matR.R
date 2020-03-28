@@ -1,7 +1,7 @@
 #' @title Transform Dataframe to Matrix R
 #' @description This function transforms dataframe contains sampling variance to block diagonal matrix R
 #' @param var.df dataframe of sampling variances of direct estimators.
-#' @param r number of variabel
+#' @param r number of variables
 #' @return Block diagonal matrix R
 #' @examples NULL
 #' @export df2matR
