@@ -48,167 +48,168 @@
 #'
 #' @export eblupMFH2
 eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
-  r <- length(formula)
+  r = length(formula)
 
   if(!missing(data)){
-    formula.matrix <- lapply(formula, function(x){model.frame(x,na.action = na.omit,data)})
-    y.matrix <- unlist(lapply(formula, function(x){model.frame(x,na.action = na.omit,data)}[[1]]))
-    x.matrix <- Reduce(adiag,lapply(formula, function(x){model.matrix(x,data)}))
-    n <- length(y.matrix)/r
+    formula.matrix = lapply(formula, function(x){model.frame(x,na.action = na.omit,data)})
+    y.matrix = unlist(lapply(formula, function(x){model.frame(x,na.action = na.omit,data)}[[1]]))
+    x.matrix = Reduce(adiag,lapply(formula, function(x){model.matrix(x,data)}))
+    n = length(y.matrix)/r
     if(!all(vardir %in% names(data)))
       stop("Object vardir is not appropiate with data")
     if(length(vardir) != sum(1:r))
       stop("Length of vardir is not appropiate with data")
     if (any(is.na(data[,vardir])))
       stop("Object vardir contains NA values.")
-    vardir <- data[,vardir]
-    R <- df2matR(vardir, r)
+    vardir = data[,vardir]
+    R = df2matR(vardir, r)
   } else {
-    formula.matrix <- lapply(formula, function(x){model.frame(x,na.action = na.omit)})
-    y.matrix <- unlist(lapply(formula, function(x){model.frame(x, na.action = na.omit)}[[1]]))
-    x.matrix <- Reduce(adiag,lapply(formula, function(x){model.matrix(x)}))
-    n <- length(y.matrix)/r
+    formula.matrix = lapply(formula, function(x){model.frame(x,na.action = na.omit)})
+    y.matrix = unlist(lapply(formula, function(x){model.frame(x, na.action = na.omit)}[[1]]))
+    x.matrix = Reduce(adiag,lapply(formula, function(x){model.matrix(x)}))
+    n = length(y.matrix)/r
     if(dim(vardir)[2]!= sum(1:r)){
       stop("Object vardir is not appropiate with data")
     }
     if (any(is.na(vardir)))
       stop("Object vardir contains NA values.")
-    R <- df2matR(vardir, r)
+    R = df2matR(vardir, r)
   }
 
   for(i in 1:r){
     if (attr(attributes(formula.matrix[[i]])$terms,"response")==1)
-      textformula <- paste(formula[[i]][2],formula[[i]][1],formula[[i]][3])
+      textformula = paste(formula[[i]][2],formula[[i]][1],formula[[i]][3])
     else
-      textformula <- paste(formula[[i]][1],formula[[i]][2])
+      textformula = paste(formula[[i]][1],formula[[i]][2])
 
     if (length(na.action(formula.matrix[[i]]))>0){
       stop("Argument formula= ",textformula," contains NA values.")
     }
   }
 
-  y.var <- sapply(formula, "[[", 2)
+  y.var = sapply(formula, "[[", 2)
 
   I=diag(n)
-  Id <- diag(r)
-  d.Omega <- list()
-  sigmau <- c(mean(sapply(vardir[,1:r], median)), 1 - 1e-04)
-  kit <- 0
-  diff <- rep(PRECISION + 1,2)
-  convergence <- TRUE
+  Id = diag(r)
+  d.Omega = list()
+  sigmau = c(mean(sapply(vardir[,1:r], median)), 1 - 1e-04)
+  kit = 0
+  diff = rep(PRECISION + 1,2)
+  convergence = TRUE
 
   while (any(diff > rep(PRECISION,2)) & (kit < MAXITER)) {
-    kit <- kit + 1
+    kit = kit + 1
     sigmau1=sigmau
-    Omega_AR <- matrix(0, r,r)
+    Omega_AR = matrix(0, r,r)
     if(r == 1){
-      G <- sigmau1[1]/(1-sigmau1[2]^2)
+      G = sigmau1[1]/(1-sigmau1[2]^2)
     } else {
       for(i in 1:r){
         for(j in 1:r){
-          Omega_AR[i,j] <- sigmau1[2]^(abs(i-j))/(1-sigmau1[2]^2)
+          Omega_AR[i,j] = sigmau1[2]^(abs(i-j))/(1-sigmau1[2]^2)
         }
       }
-      G <- sigmau1[1] * Omega_AR
+      G = sigmau1[1] * Omega_AR
     }
     GI=kronecker(G,I)
-    Omega <- solve(GI + R)
-    Xto <- t(Omega %*% x.matrix)
-    Q <- solve(Xto %*% x.matrix)
-    P <- Omega - t(Xto) %*% Q %*% Xto
-    d.Omega[[1]] <- kronecker(Omega_AR, I)
-    d.Omega[[2]] <- matrix(NA, r,r)
+    Omega = solve(GI + R)
+    Xto = t(Omega %*% x.matrix)
+    Q = solve(Xto %*% x.matrix)
+    P = Omega - t(Xto) %*% Q %*% Xto
+    d.Omega[[1]] = kronecker(Omega_AR, I)
+    d.Omega[[2]] = matrix(NA, r,r)
     for(i in 1:r){
       for(j in 1:r){
-        k <- abs(i-j)
-        d.Omega[[2]][i,j] <- sigmau1[1]*(k*sigmau1[2]^(k-1) + (2-k)*(sigmau1[2]^(k+1)))/(1-sigmau1[2]^2)^2
+        k = abs(i-j)
+        d.Omega[[2]][i,j] = sigmau1[1]*(k*sigmau1[2]^(k-1) + (2-k)*(sigmau1[2]^(k+1)))/(1-sigmau1[2]^2)^2
       }
     }
-    d.Omega[[2]] <- kronecker(d.Omega[[2]], I)
+    d.Omega[[2]] = kronecker(d.Omega[[2]], I)
 
-    Py <- P %*% y.matrix
-    s <- sapply(d.Omega, function(x) (-0.5) * sum(diag(P%*%x)) + 0.5 * (t(Py)%*%x %*% Py))
-    iF <- matrix(unlist(lapply(d.Omega, function(x) lapply(d.Omega, function(y) 0.5 * sum(diag(P%*%x%*%P%*%y))))),2)
-    sigmau <- sigmau1 + solve(iF)%*%s
+    Py = P %*% y.matrix
+    s = sapply(d.Omega, function(x) (-0.5) * sum(diag(P%*%x)) + 0.5 * (t(Py)%*%x %*% Py))
+    iF = matrix(unlist(lapply(d.Omega, function(x) lapply(d.Omega, function(y) 0.5 * sum(diag(P%*%x%*%P%*%y))))),2)
+    sigmau = sigmau1 + solve(iF)%*%s
     if(abs(sigmau[2]) > 1){
-      sigmau[2] <- sigmau1[2]
+      sigmau[2] = sigmau1[2]
     }
-    diff <- abs((sigmau - sigmau1)/sigmau1)
+    diff = abs((sigmau - sigmau1)/sigmau1)
   }
-  sigmau[1] <- max(sigmau[1], 0)
+  sigmau[1] = max(sigmau[1], 0)
   if (kit >= MAXITER && diff >= PRECISION) {
-    convergence <- FALSE }
+    convergence = FALSE }
 
   if(r == 1){
-    G <- sigmau[1]/(1-sigmau[2]^2)
+    G = sigmau[1]/(1-sigmau[2]^2)
   } else {
     for(i in 1:r){
       for(j in 1:r){
-        Omega_AR[i,j] <- sigmau[2]^(abs(i-j))/(1-sigmau[2]^2)
+        Omega_AR[i,j] = sigmau[2]^(abs(i-j))/(1-sigmau[2]^2)
       }
     }
-    G <- sigmau[1] * Omega_AR
+    G = sigmau[1] * Omega_AR
   }
   GI=kronecker(G,I)
-  Omega <- solve(GI + R)
-  Xto <- t(Omega %*% x.matrix)
-  Qh <- solve(Xto %*% x.matrix)
-  P <- Omega - t(Xto) %*% Qh %*% Xto
-  Py <- P %*% y.matrix
-  d.Omega[[1]] <- kronecker(Omega_AR, I)
-  d.Omega[[2]] <- matrix(NA, r,r)
+  Omega = solve(GI + R)
+  Xto = t(Omega %*% x.matrix)
+  Qh = solve(Xto %*% x.matrix)
+  P = Omega - t(Xto) %*% Qh %*% Xto
+  Py = P %*% y.matrix
+  d.Omega[[1]] = kronecker(Omega_AR, I)
+  d.Omega[[2]] = matrix(NA, r,r)
   for(i in 1:r){
     for(j in 1:r){
-      k <- abs(i-j)
-      d.Omega[[2]][i,j] <- sigmau[1]*(k*sigmau[2]^(k-1) + (2-k)*(sigmau[2]^(k+1)))/((1-sigmau[2]^2)^2)
+      k = abs(i-j)
+      d.Omega[[2]][i,j] = sigmau[1]*(k*sigmau[2]^(k-1) + (2-k)*(sigmau[2]^(k+1)))/((1-sigmau[2]^2)^2)
     }
   }
-  d.Omega[[2]] <- kronecker(d.Omega[[2]], I)
+  d.Omega[[2]] = kronecker(d.Omega[[2]], I)
 
   beta=Qh%*%Xto%*%y.matrix
   res=y.matrix-x.matrix%*%beta
   eblup=x.matrix%*%beta+GI%*%Omega%*%res
-  eblup.df <- data.frame(matrix(eblup, n, r))
-  names(eblup.df) <- y.var
+  eblup.df = data.frame(matrix(eblup, n, r))
+  names(eblup.df) = y.var
   se.b=sqrt(diag(Qh))
   t.val=beta/se.b
-  pv <- 2 * pnorm(abs(t.val), lower.tail = FALSE)
-  coef <- cbind(beta, se.b, t.val, pv)
-  colnames(coef) <- c("beta", "std.error", "t.statistics", "p.value")
+  pv = 2 * pnorm(abs(t.val), lower.tail = FALSE)
+  coef = cbind(beta, se.b, t.val, pv)
+  colnames(coef) = c("beta", "std.error", "t.statistics", "p.value")
 
   FI=solve(iF)
   d=kronecker(Id,I)-GI%*%Omega
   gg1=diag(GI%*%Omega%*%R)
   gg2=diag(d%*%x.matrix%*%Qh%*%t(x.matrix)%*%t(d))
-  dg <- lapply(d.Omega, function(x) x %*% Omega - GI %*% Omega %*% x %*% Omega)
-  g3 <- list()
+  dg = lapply(d.Omega, function(x) x %*% Omega - GI %*% Omega %*% x %*% Omega)
+  g3 = list()
   for (i in 1:2){
     for (j in 1:2){
-      g3[[(i-1)*2+j]] <- FI[i,j]*(dg[[i]]%*%(GI+R) %*% t(dg[[j]]))
+      g3[[(i-1)*2+j]] = FI[i,j]*(dg[[i]]%*%(GI+R) %*% t(dg[[j]]))
     }
   }
-  gg3 <- diag(Reduce('+', g3))
+  gg3 = diag(Reduce('+', g3))
   mse = gg1 + gg2 + 2*gg3
-  mse.df <- data.frame(matrix(0,n,r))
-  names(mse.df) <- y.var
+  mse.df = data.frame(matrix(0,n,r))
+  names(mse.df) = y.var
   for(i in 1:r)
-    mse.df[,i] <- mse[((i-1)*n+1):(i*n)]
+    mse.df[,i] = mse[((i-1)*n+1):(i*n)]
 
-  u.cap <- GI %*% Omega %*% res
-  u.cap.df <- as.data.frame(matrix(u.cap, n, r))
-  names(u.cap.df) <- y.var
+  u.cap = GI %*% Omega %*% res
+  u.cap.df = as.data.frame(matrix(u.cap, n, r))
+  names(u.cap.df) = y.var
 
-  T.test <- (sigmau[2,]) / (sqrt(FI[2,2]))
-  if(T.test > 0){
-    p.val <- 1-pnorm(T.test)
-  } else {
-    p.val <- pnorm(T.test)
-  }
+  T.test = (sigmau[2,]) / (sqrt(FI[2,2]))
+  p.val = 2 * pnorm(abs(T.test), lower.tail = FALSE)
+  # if(T.test > 0){
+  #   p.val = 1-pnorm(T.test)
+  # } else {
+  #   p.val = pnorm(T.test)
+  # }
 
-  rho.df <- data.frame(signif(data.frame(sigmau[2], T.test, p.val), digits = 5))
-  names(rho.df) <- c("rho","T.test", "p-value")
+  rho.df = data.frame(signif(data.frame(sigmau[2], T.test, p.val), digits = 5))
+  names(rho.df) = c("rho","T.test", "p-value")
 
-  result <- list(eblup = NA,
+  result = list(eblup = NA,
                  MSE = NA,
                  randomEffect=NA,
                  Rmatrix=NA,
@@ -220,16 +221,16 @@ eblupMFH2 <- function (formula, vardir, MAXITER = 100, PRECISION = 1e-04, data){
                             rho=NA,
                             informationFisher=NA
                  ))
-  result$eblup <- signif(eblup.df, digits = 5)
-  result$MSE <- signif(mse.df, digits = 5)
-  result$randomEffect <- signif(u.cap.df, digits = 5)
-  result$Rmatrix <- signif(R, digits = 5)
-  result$fit$method <- "REML"
-  result$fit$convergence <- convergence
-  result$fit$iterations <- kit
-  result$fit$estcoef <- coef
-  result$fit$refvar <- signif(sigmau[1,], digits = 5)
-  result$fit$rho <- rho.df
-  result$fit$informationFisher <- signif(iF, digits = 5)
+  result$eblup = signif(eblup.df, digits = 5)
+  result$MSE = signif(mse.df, digits = 5)
+  result$randomEffect = signif(u.cap.df, digits = 5)
+  result$Rmatrix = signif(R, digits = 5)
+  result$fit$method = "REML"
+  result$fit$convergence = convergence
+  result$fit$iterations = kit
+  result$fit$estcoef = coef
+  result$fit$refvar = signif(sigmau[1,], digits = 5)
+  result$fit$rho = rho.df
+  result$fit$informationFisher = signif(iF, digits = 5)
   return(result)
 }

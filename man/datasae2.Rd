@@ -4,7 +4,8 @@
 \name{datasae2}
 \alias{datasae2}
 \title{Data generated based on Autoregressive Multivariate Fay Herriot Model (Model 2)}
-\format{A data frame with 30 rows and 11 variables:
+\format{
+A data frame with 30 rows and 11 variables:
 \describe{
   \item{X1}{Auxiliary variable of X1}
   \item{X2}{Auxiliary variable of X2}
@@ -17,7 +18,8 @@
   \item{v2}{Sampling Variance of Y2}
   \item{v23}{Sampling Covariance of Y2 and Y3}
   \item{v3}{Sampling Variance of Y3}
-}}
+}
+}
 \usage{
 datasae2
 }
