@@ -66,7 +66,7 @@ Fo <- list(f1=datasae1$Y1~datasae1$X1+datasae1$X2,
            f2=datasae1$Y2~datasae1$X1+datasae1$X2,
            f3=datasae1$Y3~datasae1$X1+datasae1$X2)
 vardir <- datasae1[,c("v1", "v2", "v3", "v12", "v13", "v23")]
-un <- eblupMFH1(Fo, vardir)
+un <- eblupUFH(Fo, vardir)
 
 un$eblup   # see the EBLUP estimators
 un$MSE   # see MSE of EBLUP estimators

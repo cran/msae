@@ -34,7 +34,7 @@ This data is generated based on autoregressive multivariate Fay-Herriot model (m
   }
   \item Calculate direct estimation \code{Y1 Y2 and Y3} , where \eqn{Y_{i}}{Yi} = \eqn{X * \beta + u_{i} + e_{i}}{X\beta+ui+ei}. We take \eqn{\beta_{1} = 5}{\beta1 = 5} and \eqn{\beta_{2} = 10}{\beta2 = 10}.
 }
-Auxiliary variables \code{X1 X2}, direct estimation \code{Y1 Y2 Y3}, and sampling variance-covariance \code{v1 v2 v3 v12 v13 v23} are combined into a dataframe called datasae1.
+Auxiliary variables \code{X1 X2}, direct estimation \code{Y1 Y2 Y3}, and sampling variance-covariance \code{v1 v2 v3 v12 v13 v23} are combined into a dataframe called datasae2.
 }
 \section{Reference}{
  Benavent, Roberto & Morales, Domingo. (2015). Multivariate Fay-Herriot models for small area estimation. Computational Statistics & Data Analysis. 100. 372-390. DOI: 10.1016/j.csda.2015.07.013.

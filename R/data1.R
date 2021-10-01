@@ -4,7 +4,7 @@
 #' \enumerate{
 #'   \item Generate sampling error \code{e}, random effect \code{u}, and auxiliary variables \code{X1 X2}.
 #'   \itemize{
-#'     \item For sampling error \code{e}, we set \eqn{e}{e} ~ \eqn{N_{3}(0, V_{e})}{N2(0, Ve)} , where \eqn{V_{e} = (\sigma_{ij})_{i,j=1,2,3}}{Ve = (\sigmaij)i,j=1,2,3}, with  \eqn{\sigma_{11}}{\sigma11} = 0.1 , \eqn{\sigma_{22}}{\sigma22} = 0.2 ,  \eqn{\sigma_{33}}{\sigma33} = 0.3 , and \eqn{\rho_{e}}{\rhoe} = 0.5.
+#'     \item For sampling error \code{e}, we set \eqn{e_{d}}{ed} ~ \eqn{N_{3}(0, V_{ed})}{N3(0, Ved)} , where \eqn{V_{ed} = (\sigma_{dij})_{i,j=1,2,3}}{Ved = (\sigmadij)i,j=1,2,3}, with  \eqn{\sigma_{11}}{\sigma11}  ~ \eqn{InvGamma(11, 1)}{InvGamma(11, 1)}, \eqn{\sigma_{22}}{\sigma22}  ~ \eqn{InvGamma(11, 2)}{InvGamma(11, 2)},  \eqn{\sigma_{33}}{\sigma33}  ~ \eqn{InvGamma(11, 3)}{InvGamma(11, 3)}, and \eqn{\rho_{e}}{\rhoe} = 0.5.
 #'     \item For random effect \code{u}, we set \eqn{u}{u} ~ \eqn{N_{3}(0, V_{u})}{N2(0, Vu)} , where \eqn{\sigma_{u11}}{\sigmau11} = 0.2 , \eqn{\sigma_{u22}}{\sigmau22} = 0.4 , and \eqn{\sigma_{u33}}{\sigmau33} = 1.2.
 #'     \item For auxiliary variables \code{X1 and X2}, we set \eqn{X1}{X1} ~ \eqn{N(5, 0.1)}{N(5, 0.1)} and \eqn{X2}{X2} ~ \eqn{N(10, 0.2)}{N(10, 0.2)}.
 #'   }
